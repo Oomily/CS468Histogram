@@ -83,16 +83,18 @@ int main(int argc, char* argv[])
     // being associated with a pixel in a 2D image.
     uint32_t **input = generate_histogram_bins();
 
-    printf("print gold standard input: \n");
-    for(int i = 0; i <INPUT_HEIGHT; i++){
-        for(int j = 0; j < INPUT_WIDTH; j++){
-            printf("%d ", input[i][j]);
-        }
-    }
-    printf("\n\n");
+    // printf("print gold standard input: \n");
+    // for(int i = 0; i <INPUT_HEIGHT; i++){
+    //     for(int j = 0; j < INPUT_WIDTH; j++){
+    //         printf("%d ", input[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n\n");
 
     TIME_IT("ref_2dhisto",
             1000,
+            // 1,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
     /* Include your setup code below (temp variables, function calls, etc.) */
@@ -100,13 +102,13 @@ int main(int argc, char* argv[])
     // the size of the data is weird because it's padded to be 128 bits/16 bytes aligned
     size_t inputWidth = (INPUT_WIDTH + 128) & 0xFFFFFF80;
     int inputSize = INPUT_HEIGHT * inputWidth * sizeof(uint32_t);
-    printf("input size %d %d %d\n", INPUT_HEIGHT, INPUT_WIDTH, inputWidth);
+    // printf("INPUT_WIDTH %d, INPUT_HEIGHT %d, inputWidth %d, %d\n", INPUT_WIDTH, INPUT_HEIGHT, inputWidth, inputSize);
     uint32_t *dataInput = input[0]; //we want to transfer over the data chunk, not the res chunk
     uint32_t *deviceInput = (uint32_t*)AllocateDeviceMem(dataInput, inputSize);
 
     //weird 32 stuff
     int histogramSize = HISTO_HEIGHT*HISTO_WIDTH*sizeof(uint32_t);
-    uint8_t *bigKernelBins = (uint8_t*)malloc(HISTO_HEIGHT*HISTO_WIDTH*sizeof(uint32_t));
+    uint32_t *bigKernelBins = (uint32_t*)malloc(HISTO_HEIGHT*HISTO_WIDTH*sizeof(uint32_t));
 
     uint32_t *deviceBins = (uint32_t*)AllocateDeviceMem(bigKernelBins, histogramSize);
 
@@ -114,8 +116,8 @@ int main(int argc, char* argv[])
 
     /* This is the call you will use to time your parallel implementation */
     TIME_IT("opt_2dhisto",
-            // 1000,
-            1,
+            1000,
+            // 1,
             opt_2dhisto(deviceBins, deviceInput, inputWidth));
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
@@ -124,23 +126,21 @@ int main(int argc, char* argv[])
     DeallocateMemory(deviceInput);
     DeallocateMemory(deviceBins);
 
-    printf("RESULT:\n");
-
+    // printf("RESULT:\n");
     for(int i = 0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
-        // printf("%d ", bigKernelBins[i]);
         kernel_bins[i] = (uint8_t)bigKernelBins[i];
     }
-    printf("\n\n\n");
+    // printf("\n\n\n");
     /* End of teardown code */
     
     int passed=1;
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
         if (gold_bins[i] != kernel_bins[i]){
-            printf("FAILED: %d %d\n", gold_bins[i], kernel_bins[i]);
+            // printf("FAILED: gold, %d calculated, %d || value, %d\n", gold_bins[i], kernel_bins[i], i);
             passed = 0;
             break;
         }
-        printf("PASSED: %d %d\n", gold_bins[i], kernel_bins[i]);
+
     }
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 

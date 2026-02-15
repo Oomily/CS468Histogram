@@ -2,10 +2,10 @@
 #define UTIL_H__
 
 #define __USE_BSD 1
-// #define INPUT_WIDTH  3984
-// #define INPUT_HEIGHT 4096
-#define INPUT_WIDTH  100
-#define INPUT_HEIGHT 100
+#define INPUT_WIDTH  3984
+#define INPUT_HEIGHT 4096
+// #define INPUT_WIDTH 100
+// #define INPUT_HEIGHT 100
 
 #include <stdio.h>
 #include <time.h>
