@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
     int passed=1;
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
         if (gold_bins[i] != kernel_bins[i]){
-            // printf("FAILED: gold, %d calculated, %d || value, %d\n", gold_bins[i], kernel_bins[i], i);
+            printf("FAILED: gold, %d calculated, %d || value, %d\n", gold_bins[i], kernel_bins[i], i);
             passed = 0;
             break;
         }
